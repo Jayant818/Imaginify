@@ -1,5 +1,5 @@
 // server actions are always asynchronomous functions
-"user server";
+"use server";
 
 import { Handshake } from "lucide-react";
 import User from "../database/models/user.model";
