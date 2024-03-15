@@ -2,6 +2,9 @@
 import { Webhook } from "svix";
 import { headers } from "next/headers";
 import { WebhookEvent } from "@clerk/nextjs/server";
+import { createUser, deleteUser, updateUser } from "@/lib/actions/user.actions";
+import { NextResponse } from "next/server";
+import { clerkClient } from "@clerk/nextjs";
 
 export async function POST(req: Request) {
 	// You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
@@ -54,13 +57,67 @@ export async function POST(req: Request) {
 	const eventType = evt.type;
 
 	//CREATE
+
 	if (eventType === "user.created") {
-		console.log("Bhai LOg");
-		console.log(evt.data);
+		const { id, email_addresses, image_url, first_name, last_name, username } =
+			evt.data;
+
+		const user = {
+			clerkId: id,
+			email: email_addresses[0].email_address,
+			username: username!,
+			firstName: first_name,
+			lastName: last_name,
+			photo: image_url,
+		};
+
+		const newUser = await createUser(user);
+
+		// Reference - https://clerk.com/docs/users/metadata
+		// yaha pe hum jo ki user ki _id field hai usko hum clerk mai save kar rahe hai taki mapping mai asan ho orr dursa easily access kar paye cheeze from mongodb , by getting the _id from clerk
+		// clerkClient.users.getUser(userId);
+
+		if (newUser) {
+			await clerkClient.users.updateUserMetadata(id, {
+				publicMetadata: {
+					userId: newUser._id,
+				},
+			});
+		}
+
+		return NextResponse.json({
+			message: "OK",
+			user: newUser,
+		});
 	}
 
-	console.log(`Webhook with and ID of ${id} and type of ${eventType}`);
-	console.log("Webhook body:", body);
+	if (eventType === "user.updated") {
+		const { id, image_url, first_name, last_name, username } = evt.data;
+
+		const user = {
+			firstName: first_name,
+			lastName: last_name,
+			username: username!,
+			photo: image_url,
+		};
+
+		const updatedUser = await updateUser(id, user);
+
+		return NextResponse.json({
+			message: "Updated Successfully",
+			user: updatedUser,
+		});
+	}
+
+	if (eventType === "user.deleted") {
+		const { id } = evt.data;
+		const deletedUser = await deleteUser(id);
+
+		return NextResponse.json({
+			message: "Deleted Successfully",
+			user: deletedUser,
+		});
+	}
 
 	return new Response("", { status: 200 });
 }
