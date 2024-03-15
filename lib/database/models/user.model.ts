@@ -1,4 +1,4 @@
-import { Model, Schema, models } from "mongoose";
+import { Model, Schema, model, models } from "mongoose";
 
 const userSchema = new Schema({
 	clerkId: {
@@ -39,6 +39,6 @@ const userSchema = new Schema({
 });
 
 // models - An array containing all models associated with this Mongoose instance.
-const User = models.User || new Model("User", userSchema);
+const User = models.User || model("User", userSchema);
 
 export default User;
