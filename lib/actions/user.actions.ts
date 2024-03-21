@@ -1,7 +1,6 @@
 // server actions are always asynchronomous functions
 "use server";
 
-import { Handshake } from "lucide-react";
 import User from "../database/models/user.model";
 import { connectToDB } from "../database/mongoose";
 import { handleError } from "../utils";
@@ -76,12 +75,13 @@ export async function deleteUser(clerkId: string) {
 }
 
 // USE Credit
-export async function useCredit(userId: string, creditFee: number) {
+export async function updateCredit(userId: string, creditFee: number) {
 	try {
 		await connectToDB();
 		const updatedUserCredits = await User.findOneAndUpdate(
 			{ _id: userId },
-			{ $inc: { creditBalance: creditFee } },
+			// incrementing the credit balance by -1 , means 1 cerdit is used
+			{ $inc: { tokens: creditFee } },
 			{ new: true }
 		);
 

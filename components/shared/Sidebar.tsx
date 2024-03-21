@@ -1,7 +1,6 @@
 "use client";
 import { navLinks } from "@/constants";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -11,7 +10,7 @@ import { Button } from "../ui/button";
 const Sidebar = () => {
 	const pathname = usePathname();
 	return (
-		<aside className="hidden w-64 p-4 lg:flex h-screen lg:flex-col   shadow-md shadow-purple-200">
+		<aside className="hidden w-72 p-4 lg:flex h-screen fixed lg:flex-col   shadow-md shadow-purple-200">
 			<Link href="/">
 				<Image src="/logo.png" width={180} height={38} alt="Logo" />
 			</Link>
